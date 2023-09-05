@@ -1,6 +1,9 @@
 # Use the latest Alpine image
 FROM alpine:latest
 
+
+COPY ./vim_setup /root/.config/nvim
+
 # Install packages
 RUN apk update && apk upgrade \
   && apk add --no-cache \
@@ -10,7 +13,8 @@ RUN apk update && apk upgrade \
     cmake \
     ccache \
     python3 \
-    zsh
+    zsh \
+    neovim
 
 # Set clang as the default compiler
 RUN ln -sf /usr/bin/clang /usr/bin/cc \
