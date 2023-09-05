@@ -1,0 +1,3 @@
+[submodule "vim_setup"]
+	path = vim_setup
+	url = https://github.com/tikikun/vim_setup
