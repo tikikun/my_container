@@ -22,6 +22,14 @@ RUN ln -sf /usr/bin/clang /usr/bin/cc \
   && cc --version \
   && c++ --version
 
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
+RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+
+RUN git clone https://github.com/z-shell/F-Sy-H.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/F-Sy-H
+
+COPY .zshrc /root/.zshrc
+
 # Set working directory
 WORKDIR /code
 
