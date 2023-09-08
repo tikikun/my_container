@@ -1,6 +1,11 @@
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # echo 'Welcome to macos'
+    export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
+fi
+
 export ZSH="$HOME/.oh-my-zsh"
 
 # Set name of the theme to load --- if set to "random", it will
