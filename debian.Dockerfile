@@ -56,7 +56,7 @@ FROM install_neovim as install_cli
 
 RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-COPY .zshrc /root/.zshrc
+COPY dotfiles/.zshrc /root/.zshrc
 
 RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
 
