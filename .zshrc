@@ -1,6 +1,8 @@
+# If you come from bash you might have to change your $PATH.
 # export PATH=$HOME/bin:/usr/local/bin:$PATH
 
 # Path to your oh-my-zsh installation.
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # echo 'Welcome to macos'
     export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
@@ -114,5 +116,20 @@ PROMPT+=' %{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info) ${NEWLINE}'
 
 PROMPT+='->'
 
+if test -d "$HOME/mambaforge"; then
+    __conda_setup="$(~/mambaforge/bin/conda 'shell.zsh' 'hook' 2> /dev/null)"
+    if [ $? -eq 0 ]; then
+        eval "$__conda_setup"
+    else
+        if [ -f "~/mambaforge/etc/profile.d/conda.sh" ]; then
+            . "~/mambaforge/etc/profile.d/conda.sh"
+        else
+            export PATH="~/mambaforge/bin:$PATH"
+        fi
+    fi
+    unset __conda_setup
 
-
+    if [ -f "~/mambaforge/etc/profile.d/mamba.sh" ]; then
+        . "~/mambaforge/etc/profile.d/mamba.sh"
+    fi
+fi
