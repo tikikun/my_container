@@ -3,11 +3,6 @@
 
 # Path to your oh-my-zsh installation.
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    # echo 'Welcome to macos'
-    export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
-fi
-
 export ZSH="$HOME/.oh-my-zsh"
 alias tmux='tmux -u'
 # Set name of the theme to load --- if set to "random", it will
