@@ -103,9 +103,9 @@ source $ZSH/oh-my-zsh.sh
 
 NEWLINE=$'\n'
 
-PROMPT="%{$fg_bold[white]%}%n %{$fg[blue]%}@ %{$fg_bold[yellow]%}%m"
+# PROMPT="%{$fg_bold[white]%}%n %{$fg[blue]%}@ %{$fg_bold[yellow]%}%m"
 
-PROMPT+=" %(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ )"
+PROMPT=" %(?:%{$fg_bold[green]%}➜ :%{$fg_bold[red]%}➜ )"
 
 PROMPT+=' %{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info) ${NEWLINE}'
 
