@@ -1,0 +1,10 @@
+home.com {
+      redir /adguard /adguard/ 301
+
+      handle_path /adguard/* {
+          reverse_proxy 0.0.0.0:3330
+      }
+      tls internal
+      respond "currently only have <a>http://home.com/adguard/<\a>"
+  }
+
