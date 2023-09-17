@@ -4,3 +4,15 @@ You need to set up your own Caddyfile in the path below
 ```zsh
 /opt/homebrew/etc/Caddyfile
 ```
+
+After that you can start caddy using brew
+
+```zsh
+brew services start caddy
+```
+
+and if you update the Caddyfile you can use
+
+```zsh
+brew services restart caddy
+```
