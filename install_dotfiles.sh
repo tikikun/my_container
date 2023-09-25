@@ -5,5 +5,6 @@ set -e
 trap '[[ $? -eq 0 ]] && echo "All commands executed successfully!" || echo "Exception occurred!"' EXIT
 
 mkdir -p ~/.config/nvim
-cp -rf ./vim_setup/* ~/.config/nvim
-cp -rf dotfiles/. ~/
+ln -sf $(pwd)/vim_setup ~/.config/nvim
+ln -sf $(pwd)/dotfiles/.tmux.conf ~/.tmux.conf
+ln -sf $(pwd)/dotfiles/.zshrc ~/.zshrc
