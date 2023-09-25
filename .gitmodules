@@ -1,3 +1,6 @@
 [submodule "vim_setup"]
 	path = vim_setup
 	url = https://github.com/tikikun/vim_setup
+[submodule "my_private"]
+	path = my_private
+	url = https://github.com/tikikun/my_private
