@@ -111,8 +111,6 @@ PROMPT+=' %{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info) ${NEWLINE}'
 
 PROMPT+='->'
 
-# IGNORE_SECTION
-
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
 __conda_setup="$('/opt/homebrew/Caskroom/mambaforge/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
@@ -131,4 +129,6 @@ if [ -f "/opt/homebrew/Caskroom/mambaforge/base/etc/profile.d/mamba.sh" ]; then
     . "/opt/homebrew/Caskroom/mambaforge/base/etc/profile.d/mamba.sh"
 fi
 # <<< conda initialize <<<
+
+# IGNORE_SECTION
 
