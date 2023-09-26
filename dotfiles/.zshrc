@@ -112,7 +112,9 @@ PROMPT+=' %{$fg[cyan]%}%d%{$reset_color%} $(git_prompt_info) ${NEWLINE}'
 PROMPT+='->'
 
 if [[ "$OSTYPE" == darwin* ]]; then
-     # >>> conda initialize >>>
+    export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
+    alias colima.quick="colima start --arch aarch64 --vm-type vz --cpu \$(sysctl -n hw.ncpu) --memory \$(sysctl -n hw.memsize | awk '{print int(\$0/1024/1024/1024)}')"
+    # >>> conda initialize >>>
     # !! Contents within this block are managed by 'conda init' !!
     __conda_setup="$('/opt/homebrew/Caskroom/mambaforge/base/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
     if [ $? -eq 0 ]; then
