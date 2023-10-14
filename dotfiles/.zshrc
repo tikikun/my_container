@@ -134,5 +134,8 @@ if [[ "$OSTYPE" == darwin* ]]; then
     # <<< conda initialize <<<
 fi
 
+# To init atuin
+eval "$(atuin init zsh)"
+
 # IGNORE_SECTION
 
