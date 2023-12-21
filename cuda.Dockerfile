@@ -1,4 +1,4 @@
-FROM cuda:12.3.1-devel-ubuntu22.04 AS clang16_image
+FROM nvidia/cuda:12.3.1-devel-ubuntu22.04 AS clang16_image
 
 # Install dependencies
 RUN apt-get -qq update; \
