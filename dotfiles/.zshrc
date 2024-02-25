@@ -114,6 +114,7 @@ PROMPT+='->'
 if [[ "$OSTYPE" == darwin* ]]; then
     export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
     alias colima.quick="colima start --arch aarch64 --vm-type vz --cpu \$(sysctl -n hw.ncpu) --memory \$(sysctl -n hw.memsize | awk '{print int(\$0/1024/1024/1024)}')"
+    source virtualenvwrapper.sh
 fi
 
 # Control npm version
