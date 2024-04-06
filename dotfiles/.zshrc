@@ -114,6 +114,10 @@ PROMPT+='->'
 if [[ "$OSTYPE" == darwin* ]]; then
     export DOCKER_HOST="unix://$HOME/.colima/docker.sock"
     alias colima.quick="colima start --arch aarch64 --vm-type vz --cpu \$(sysctl -n hw.ncpu) --memory \$(sysctl -n hw.memsize | awk '{print int(\$0/1024/1024/1024)}')"
+    export PYENV_ROOT="$HOME/.pyenv"
+    [[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+
 #   source virtualenvwrapper.sh
 fi
 
