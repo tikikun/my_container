@@ -121,6 +121,14 @@ if [[ "$OSTYPE" == darwin* ]]; then
 #   source virtualenvwrapper.sh
 fi
 
+# Inside your .bashrc or .zshrc
+if [[ -n "$VIRTUAL_ENV" ]]; then
+  source "$VIRTUAL_ENV/bin/activate"
+  echo "Activated virtual environment: $VIRTUAL_ENV"
+  echo "Using Python interpreter: $(which python)"
+  echo "Python version: $(python --version)"
+fi
+
 # Control npm version
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
