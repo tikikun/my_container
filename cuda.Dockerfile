@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.3.1-devel-ubuntu22.04 AS clang16_image
+FROM nvidia/cuda:12.1.1-devel-ubuntu22.04 AS clang16_image
 
 # Install dependencies
 RUN apt-get -qq update; \
@@ -7,12 +7,12 @@ RUN apt-get -qq update; \
         autoconf automake cmake dpkg-dev file make patch libc6-dev
 
 # Install LLVM
-RUN echo "deb https://apt.llvm.org/bookworm llvm-toolchain-bookworm-16 main" \
+RUN echo "deb https://apt.llvm.org/jammy llvm-toolchain-jammy-16 main" \
         > /etc/apt/sources.list.d/llvm.list && \
     wget -qO /etc/apt/trusted.gpg.d/llvm.asc \
         https://apt.llvm.org/llvm-snapshot.gpg.key && \
-    apt-get -qq update && \
-    apt-get install -qqy -t llvm-toolchain-bookworm-16 clang-16 clangd-16 clang-tidy-16 clang-format-16 lld-16 libc++-16-dev libc++abi-16-dev && \
+    apt-get update && \
+    apt-get install -y -t llvm-toolchain-jammy-16 clang-16 clangd-16 clang-tidy-16 clang-format-16 lld-16 libc++-16-dev libc++abi-16-dev && \
     for f in /usr/lib/llvm-16/bin/*; do ln -sf "$f" /usr/bin; done && \
     rm -rf /var/lib/apt/lists/*
 
@@ -26,7 +26,11 @@ RUN apt-get update && apt-get upgrade -y \
     build-essential \
     cmake \
     python3 \
+    python3-pip \
     zsh \
+    nvtop \
+    btop \
+    tmux \
     git \
     curl \
     ca-certificates \
@@ -39,6 +43,17 @@ RUN ln -sf /usr/bin/clang /usr/bin/cc \
   && ln -sf /usr/bin/clang++ /usr/bin/c++ \
   && cc --version \
   && c++ --version
+
+# Set the default shell to zsh for SSH sessions
+RUN echo "export SHELL=/bin/zsh" >> /root/.bashrc
+
+# Install SSH server and setup
+RUN apt-get update && apt-get install -y openssh-server \
+  && echo 'root:helloworld' | chpasswd \
+  && sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config \
+  && sed -i 's/#PasswordAuthentication yes/PasswordAuthentication yes/' /etc/ssh/sshd_config \
+  && mkdir /var/run/sshd
+
 
 FROM base_image AS install_neovim
 
@@ -65,6 +80,12 @@ RUN git clone https://github.com/z-shell/F-Sy-H.git ${ZSH_CUSTOM:-$HOME/.oh-my-z
 # Set working directory
 WORKDIR /code
 
-# Set the entrypoint script
-ENTRYPOINT ["zsh"]
+# Set up zsh to work properly
+RUN chsh -s /bin/zsh root && echo "cd /code" >> /root/.zshrc
+
+# Install jupter lab
+RUN pip3 install jupyterlab
+
+# Start SSH and zsh shell
+ENTRYPOINT service ssh restart && /bin/zsh
 
