@@ -27,6 +27,7 @@ RUN apt-get update && apt-get upgrade -y \
     cmake \
     python3 \
     python3-pip \
+    python3-dev \
     zsh \
     nvtop \
     btop \
