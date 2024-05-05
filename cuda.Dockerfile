@@ -37,6 +37,7 @@ RUN apt-get update && apt-get upgrade -y \
     ca-certificates \
     gettext \
     unzip \
+    fd-find \
   && rm -rf /var/lib/apt/lists/*
 
 # Set clang as the default compiler
