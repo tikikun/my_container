@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.1.1-devel-ubuntu22.04 AS clang16_image
+FROM nvidia/cuda:12.4.1-devel-ubuntu22.04 AS clang18_image
 
 # Install dependencies
 RUN apt-get -qq update; \
@@ -7,16 +7,16 @@ RUN apt-get -qq update; \
         autoconf automake cmake dpkg-dev file make patch libc6-dev
 
 # Install LLVM
-RUN echo "deb https://apt.llvm.org/jammy llvm-toolchain-jammy-16 main" \
+RUN echo "deb https://apt.llvm.org/jammy llvm-toolchain-jammy-18 main" \
         > /etc/apt/sources.list.d/llvm.list && \
     wget -qO /etc/apt/trusted.gpg.d/llvm.asc \
         https://apt.llvm.org/llvm-snapshot.gpg.key && \
     apt-get update && \
-    apt-get install -y -t llvm-toolchain-jammy-16 clang-16 clangd-16 clang-tidy-16 clang-format-16 lld-16 libc++-16-dev libc++abi-16-dev && \
-    for f in /usr/lib/llvm-16/bin/*; do ln -sf "$f" /usr/bin; done && \
+    apt-get install -y -t llvm-toolchain-jammy-18 clang-18 clangd-18 clang-tidy-18 clang-format-18 lld-18 libc++-18-dev libc++abi-18-dev && \
+    for f in /usr/lib/llvm-18/bin/*; do ln -sf "$f" /usr/bin; done && \
     rm -rf /var/lib/apt/lists/*
 
-FROM clang16_image AS base_image
+FROM clang18_image AS base_image
 
 COPY ./vim_setup /root/.config/nvim
 
@@ -27,6 +27,7 @@ RUN apt-get update && apt-get upgrade -y \
     cmake \
     python3 \
     python3-pip \
+    python3-dev \
     zsh \
     nvtop \
     btop \
