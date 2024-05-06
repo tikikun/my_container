@@ -46,6 +46,16 @@ RUN ln -sf /usr/bin/clang /usr/bin/cc \
   && cc --version \
   && c++ --version
 
+# Fix cuda clang issue
+# Command to append content to the clangd config file
+RUN mkdir -p /root/.config/clangd && \
+    echo "CompileFlags:" >> /root/.config/clangd/config.yaml && \
+    echo "  Add:" >> /root/.config/clangd/config.yaml && \
+    echo "    - --cuda-gpu-arch=sm_86" >> /root/.config/clangd/config.yaml && \
+    echo "  Remove:" >> /root/.config/clangd/config.yaml && \
+    echo "    - --generate-code=arch=*" >> /root/.config/clangd/config.yaml && \
+    echo "    - -forward-unknown-to-host-compiler" >> /root/.config/clangd/config.yaml
+
 # Set the default shell to zsh for SSH sessions
 RUN echo "export SHELL=/bin/zsh" >> /root/.bashrc
 
