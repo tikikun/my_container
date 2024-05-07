@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.4.1-devel-ubuntu22.04 AS clang18_image
+FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 AS clang18_image
 
 # Install dependencies
 RUN apt-get -qq update; \
@@ -38,6 +38,8 @@ RUN apt-get update && apt-get upgrade -y \
     gettext \
     unzip \
     fd-find \
+    nodejs \
+    npm \
   && rm -rf /var/lib/apt/lists/*
 
 # Set clang as the default compiler
@@ -93,10 +95,14 @@ RUN git clone https://github.com/z-shell/F-Sy-H.git ${ZSH_CUSTOM:-$HOME/.oh-my-z
 WORKDIR /code
 
 # Set up zsh to work properly
-RUN chsh -s /bin/zsh root && echo "cd /code" >> /root/.zshrc
+# RUN chsh -s /bin/zsh root && echo "cd /code" >> /root/.zshrc
 
 # Install jupter lab
-RUN pip3 install jupyterlab
+RUN python3 -m pip install jupyterhub \
+  && npm install -g configurable-http-proxy \
+  && python3 -m pip install jupyterlab notebook
+
+COPY create-user.sh /start-scripts/
 
 # Start SSH and zsh shell
 ENTRYPOINT service ssh restart && /bin/zsh
