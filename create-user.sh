@@ -12,6 +12,7 @@ if ! id "$MY_USER" &>/dev/null; then
     fi
 fi
 
+echo "export PATH=\"/home/$MY_USER/.local/bin:\$PATH\"" >> ~/.zshrc
 cp -a /root/. /home/$MY_USER
 chown -R $MY_USER:$MY_USER /home/$MY_USER
 chsh -s /bin/zsh $MY_USER

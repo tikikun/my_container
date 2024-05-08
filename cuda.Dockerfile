@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 AS clang18_image
+FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04 AS clang18_image
 
 # Install dependencies
 RUN apt-get -qq update; \
@@ -7,27 +7,34 @@ RUN apt-get -qq update; \
         autoconf automake cmake dpkg-dev file make patch libc6-dev
 
 # Install LLVM
-RUN echo "deb https://apt.llvm.org/jammy llvm-toolchain-jammy-18 main" \
-        > /etc/apt/sources.list.d/llvm.list && \
-    wget -qO /etc/apt/trusted.gpg.d/llvm.asc \
-        https://apt.llvm.org/llvm-snapshot.gpg.key && \
-    apt-get update && \
-    apt-get install -y -t llvm-toolchain-jammy-18 clang-18 clangd-18 clang-tidy-18 clang-format-18 lld-18 libc++-18-dev libc++abi-18-dev && \
-    for f in /usr/lib/llvm-18/bin/*; do ln -sf "$f" /usr/bin; done && \
-    rm -rf /var/lib/apt/lists/*
+#RUN echo "deb https://apt.llvm.org/jammy llvm-toolchain-jammy-18 main" \
+#        > /etc/apt/sources.list.d/llvm.list && \
+#    wget -qO /etc/apt/trusted.gpg.d/llvm.asc \
+#        https://apt.llvm.org/llvm-snapshot.gpg.key && \
+#    apt-get update && \
+#    apt-get install -y -t llvm-toolchain-jammy-18 clang-18 clangd-18 clang-tidy-18 clang-format-18 lld-18 libc++-18-dev libc++abi-18-dev && \
+#    for f in /usr/lib/llvm-18/bin/*; do ln -sf "$f" /usr/bin; done && \
+#    rm -rf /var/lib/apt/lists/*
 
 FROM clang18_image AS base_image
 
 COPY ./vim_setup /root/.config/nvim
+
+
+# Add python PPA
+ARG DEBIAN_FRONTEND=noninteractive
+
+RUN apt update && apt install -y software-properties-common \
+  && add-apt-repository ppa:deadsnakes/ppa -y
 
 # Install packages
 RUN apt-get update && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
-    python3 \
-    python3-pip \
-    python3-dev \
+    python3.12 \
+    #python3-pip \
+    python3.12-dev \
     zsh \
     nvtop \
     btop \
@@ -43,10 +50,13 @@ RUN apt-get update && apt-get upgrade -y \
   && rm -rf /var/lib/apt/lists/*
 
 # Set clang as the default compiler
-RUN ln -sf /usr/bin/clang /usr/bin/cc \
-  && ln -sf /usr/bin/clang++ /usr/bin/c++ \
-  && cc --version \
-  && c++ --version
+#RUN ln -sf /usr/bin/clang /usr/bin/cc \
+#  && ln -sf /usr/bin/clang++ /usr/bin/c++ \
+#  && cc --version \
+#  && c++ --version
+
+# Update the alternatives for Python 3.12
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 100
 
 # Fix cuda clang issue
 # Command to append content to the clangd config file
@@ -97,10 +107,12 @@ WORKDIR /code
 # Set up zsh to work properly
 # RUN chsh -s /bin/zsh root && echo "cd /code" >> /root/.zshrc
 
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
+
 # Install jupter lab
-RUN python3 -m pip install jupyterhub \
+RUN python -m pip install jupyterhub \
   && npm install -g configurable-http-proxy \
-  && python3 -m pip install jupyterlab notebook
+  && python -m pip install jupyterlab notebook
 
 COPY create-user.sh /start-scripts/
 
