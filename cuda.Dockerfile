@@ -32,9 +32,9 @@ RUN apt-get update && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
-    python3.12 \
+    python3.11 \
     #python3-pip \
-    python3.12-dev \
+    python3.11-dev \
     zsh \
     nvtop \
     btop \
@@ -56,7 +56,7 @@ RUN apt-get update && apt-get upgrade -y \
 #  && c++ --version
 
 # Update the alternatives for Python 3.12
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.12 100
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 100
 
 # Fix cuda clang issue
 # Command to append content to the clangd config file
@@ -107,12 +107,12 @@ WORKDIR /code
 # Set up zsh to work properly
 # RUN chsh -s /bin/zsh root && echo "cd /code" >> /root/.zshrc
 
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
 
 # Install jupter lab
 RUN python -m pip install jupyterhub \
   && npm install -g configurable-http-proxy \
-  && python -m pip install jupyterlab notebook
+  && python -m pip install jupyterlab notebook ipywidgets
 
 COPY create-user.sh /start-scripts/
 
