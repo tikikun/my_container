@@ -3,6 +3,10 @@
 
 # Path to your oh-my-zsh installation.
 
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
+
+
 export ZSH="$HOME/.oh-my-zsh"
 alias tmux='tmux -u'
 # Set name of the theme to load --- if set to "random", it will
