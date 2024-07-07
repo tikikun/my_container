@@ -115,6 +115,8 @@ RUN python -m pip install jupyterhub \
   && python -m pip install jupyterlab notebook ipywidgets
 
 COPY create-user.sh /start-scripts/
+COPY jupyterhub_config.py /code/
+
 
 # Start SSH and zsh shell
 ENTRYPOINT service ssh restart && /bin/zsh
