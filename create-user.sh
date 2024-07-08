@@ -13,6 +13,7 @@ if [ "$MY_USER" == "root" ]; then
     if [ -n "$MY_PASSWORD" ]; then
         set_password root "$MY_PASSWORD"
     fi
+    echo "cd /home/$MY_USER" >> ~/.zshrc 
 else
     # Check if the user already exists
     if ! id "$MY_USER" &>/dev/null; then
