@@ -118,6 +118,16 @@ COPY create-user.sh /start-scripts/
 COPY jupyterhub_config.py /code/
 
 
+RUN apt update && \
+    apt install -y locales && \
+    locale-gen en_US.UTF-8 && \
+    update-locale LANG=en_US.UTF-8
+
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+
 # Start SSH and zsh shell
 ENTRYPOINT service ssh restart && /bin/zsh
 
