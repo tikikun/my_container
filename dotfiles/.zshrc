@@ -5,10 +5,12 @@
 
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
+export TERM=xterm-256color
 
 
 export ZSH="$HOME/.oh-my-zsh"
 alias tmux='tmux -u'
+alias research="ssh -t alandao@44.50.0.89 'docker exec -it research_lab zsh'"
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time oh-my-zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
