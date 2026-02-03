@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.4.1-cudnn-devel-ubuntu22.04 AS clang18_image
+FROM nvidia/cuda:13.0.2-cudnn-devel-ubuntu22.04 AS clang18_image
 
 # Install dependencies
 RUN apt-get -qq update; \
@@ -32,9 +32,9 @@ RUN apt-get update && apt-get upgrade -y \
   && apt-get install -y --no-install-recommends \
     build-essential \
     cmake \
-    python3.11 \
+    python3.13 \
     #python3-pip \
-    python3.11-dev \
+    python3.13-dev \
     zsh \
     nvtop \
     btop \
@@ -45,9 +45,22 @@ RUN apt-get update && apt-get upgrade -y \
     gettext \
     unzip \
     fd-find \
-    nodejs \
-    npm \
   && rm -rf /var/lib/apt/lists/*
+
+# RUN apt purge npm nodejs
+
+# Use bash for the shell
+SHELL ["/bin/bash", "-o", "pipefail", "-c"]
+
+# Create a script file sourced by both interactive and non-interactive bash shells
+ENV BASH_ENV /root/.bash_env
+RUN touch "${BASH_ENV}"
+RUN echo '. "${BASH_ENV}"' >> ~/.bashrc
+
+# Download and install nvm
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | PROFILE="${BASH_ENV}" bash
+RUN echo node > .nvmrc
+RUN nvm install 22
 
 # Set clang as the default compiler
 #RUN ln -sf /usr/bin/clang /usr/bin/cc \
@@ -56,7 +69,7 @@ RUN apt-get update && apt-get upgrade -y \
 #  && c++ --version
 
 # Update the alternatives for Python 3.12
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.11 100
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.13 100
 
 # Fix cuda clang issue
 # Command to append content to the clangd config file
@@ -85,7 +98,7 @@ WORKDIR /code
 
 RUN git clone https://github.com/neovim/neovim
 WORKDIR /code/neovim
-RUN git checkout v0.9.5
+RUN git checkout v0.11.5
 RUN make CMAKE_BUILD_TYPE=RelWithDebInfo
 RUN make install
 WORKDIR /code
@@ -107,7 +120,7 @@ WORKDIR /code
 # Set up zsh to work properly
 # RUN chsh -s /bin/zsh root && echo "cd /code" >> /root/.zshrc
 
-RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.11
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.13
 
 # Install jupter lab
 RUN python -m pip install jupyterhub \
