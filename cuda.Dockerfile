@@ -6,20 +6,19 @@ RUN apt-get -qq update; \
         gnupg2 wget ca-certificates apt-transport-https \
         autoconf automake cmake dpkg-dev file make patch libc6-dev
 
-# Install LLVM
-#RUN echo "deb https://apt.llvm.org/jammy llvm-toolchain-jammy-18 main" \
-#        > /etc/apt/sources.list.d/llvm.list && \
-#    wget -qO /etc/apt/trusted.gpg.d/llvm.asc \
-#        https://apt.llvm.org/llvm-snapshot.gpg.key && \
-#    apt-get update && \
-#    apt-get install -y -t llvm-toolchain-jammy-18 clang-18 clangd-18 clang-tidy-18 clang-format-18 lld-18 libc++-18-dev libc++abi-18-dev && \
-#    for f in /usr/lib/llvm-18/bin/*; do ln -sf "$f" /usr/bin; done && \
-#    rm -rf /var/lib/apt/lists/*
+# Install LLVM 18
+RUN echo "deb https://apt.llvm.org/jammy llvm-toolchain-jammy-18 main" \
+        > /etc/apt/sources.list.d/llvm.list && \
+    wget -qO /etc/apt/trusted.gpg.d/llvm.asc \
+        https://apt.llvm.org/llvm-snapshot.gpg.key && \
+    apt-get update && \
+    apt-get install -y -t llvm-toolchain-jammy-18 clang-18 clangd-18 clang-tidy-18 clang-format-18 lld-18 libc++-18-dev libc++abi-18-dev && \
+    for f in /usr/lib/llvm-18/bin/*; do ln -sf "$f" /usr/bin; done && \
+    rm -rf /var/lib/apt/lists/*
 
 FROM clang18_image AS base_image
 
 COPY ./vim_setup /root/.config/nvim
-
 
 # Add python PPA
 ARG DEBIAN_FRONTEND=noninteractive
@@ -33,7 +32,6 @@ RUN apt-get update && apt-get upgrade -y \
     build-essential \
     cmake \
     python3.13 \
-    #python3-pip \
     python3.13-dev \
     zsh \
     nvtop \
@@ -45,9 +43,19 @@ RUN apt-get update && apt-get upgrade -y \
     gettext \
     unzip \
     fd-find \
+    procps \
   && rm -rf /var/lib/apt/lists/*
 
-# RUN apt purge npm nodejs
+# Install Node.js via NodeSource
+RUN curl -fsSL https://deb.nodesource.com/setup_current.x | bash - && \
+    apt-get install -y nodejs && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Claude Code CLI via official install script
+RUN curl -fsSL https://claude.ai/install.sh | bash
+
+# Install get-shit-done to ~/.claude/
+RUN npx get-shit-done-cc --claude --global
 
 # Use bash for the shell
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
@@ -63,12 +71,10 @@ RUN echo node > .nvmrc
 RUN nvm install 22
 
 # Set clang as the default compiler
-#RUN ln -sf /usr/bin/clang /usr/bin/cc \
-#  && ln -sf /usr/bin/clang++ /usr/bin/c++ \
-#  && cc --version \
-#  && c++ --version
+RUN which clang && ln -sf $(which clang) /usr/bin/cc && ln -sf $(which clang++) /usr/bin/c++ && \
+    cc --version && c++ --version
 
-# Update the alternatives for Python 3.12
+# Update the alternatives for Python 3.13
 RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.13 100
 
 # Fix cuda clang issue
@@ -96,33 +102,40 @@ FROM base_image AS install_neovim
 
 WORKDIR /code
 
-RUN git clone https://github.com/neovim/neovim
-WORKDIR /code/neovim
-RUN git checkout v0.11.5
-RUN make CMAKE_BUILD_TYPE=RelWithDebInfo
-RUN make install
-WORKDIR /code
-RUN rm -rf neovim
+RUN git clone https://github.com/neovim/neovim --depth 1 --branch v0.11.5 && \
+    cd neovim && \
+    git submodule update --init --recursive && \
+    make CMAKE_BUILD_TYPE=RelWithDebInfo && \
+    make install && \
+    cd .. && \
+    rm -rf neovim
 
-FROM install_neovim as install_cli
+FROM install_neovim AS install_cli
 
-RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+ENV ZSH=/root/.oh-my-zsh
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended && \
+    rm -rf /root/.cache
 
 COPY dotfiles/.zshrc /root/.zshrc
 
-RUN git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+# Copy private config from my_private subrepo (API keys, etc.)
+COPY my_private/zshrc /tmp/private_zshrc
+RUN cat /tmp/private_zshrc >> /root/.zshrc
 
-RUN git clone https://github.com/z-shell/F-Sy-H.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins/F-Sy-H
+# Ensure ~/.local/bin is in PATH (where Claude Code and npx global binaries are installed)
+RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> /root/.zshrc
+
+RUN git clone https://github.com/zsh-users/zsh-autosuggestions \
+        ${ZSH_CUSTOM:-/root/.oh-my-zsh/custom}/plugins/zsh-autosuggestions && \
+    git clone https://github.com/z-shell/F-Sy-H.git \
+        ${ZSH_CUSTOM:-/root/.oh-my-zsh/custom}/plugins/F-Sy-H
 
 # Set working directory
 WORKDIR /code
 
-# Set up zsh to work properly
-# RUN chsh -s /bin/zsh root && echo "cd /code" >> /root/.zshrc
-
 RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python3.13
 
-# Install jupter lab
+# Install jupyter lab
 RUN python -m pip install jupyterhub \
   && npm install -g configurable-http-proxy \
   && python -m pip install jupyterlab notebook ipywidgets
@@ -143,4 +156,3 @@ ENV LC_ALL en_US.UTF-8
 
 # Start SSH and zsh shell
 ENTRYPOINT service ssh restart && /bin/zsh
-
